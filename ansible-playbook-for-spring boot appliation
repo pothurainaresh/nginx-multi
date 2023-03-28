@@ -1,0 +1,60 @@
+---
+- name: Deploy Spring Boot application from GitHub
+  hosts: your_server
+  become: yes
+
+  vars:
+    app_name: your_application
+    app_version: 1.0.0
+    github_repo: https://github.com/your_username/your_repository.git
+    java_version: 11
+
+  tasks:
+    - name: Install Git
+      become: yes
+      package:
+        name: git
+        state: present
+
+    - name: Clone repository
+      become: yes
+      git:
+        repo: "{{ github_repo }}"
+        dest: "/opt/{{ app_name }}"
+        version: master
+
+    - name: Install Java
+      become: yes
+      package:
+        name: openjdk-{{ java_version }}-jdk
+        state: present
+
+    - name: Install Maven
+      become: yes
+      package:
+        name: maven
+        state: present
+
+    - name: Build application
+      become: yes
+      shell: mvn -f /opt/{{ app_name }}/pom.xml package -DskipTests
+
+    - name: Copy jar file to target server
+      become: yes
+      copy:
+        src: /opt/{{ app_name }}/target/{{ app_name }}-{{ app_version }}.jar
+        dest: /opt/{{ app_name }}/{{ app_name }}-{{ app_version }}.jar
+
+    - name: Stop existing application
+      become: yes
+      systemd:
+        name: "{{ app_name }}"
+        state: stopped
+        enabled: no
+
+    - name: Start new application
+      become: yes
+      systemd:
+        name: "{{ app_name }}"
+        state: started
+        enabled: yes
