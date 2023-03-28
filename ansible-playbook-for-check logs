@@ -1,0 +1,13 @@
+---
+- name: Check logs for jar file
+  hosts: dev
+  become: true
+  
+  tasks:
+    - name: Get logs for jar file
+      shell: tail -n 100 /path/to/logs/file.log | grep "your_jar_file_name"
+      register: logs
+      
+    - name: Print logs
+      debug:
+        var: logs.stdout_lines
