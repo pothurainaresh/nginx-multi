@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Determine the operating system
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  # Check if it's a Debian-based system
+  if [ -x "$(command -v apt-get)" ]; then
+    # Install Nginx on Debian-based systems
+    sudo apt-get update
+    sudo apt-get install nginx
+  # Check if it's a Red Hat-based system
+  elif [ -x "$(command -v yum)" ]; then
+    # Install Nginx on Red Hat-based systems
+    sudo yum install epel-release
+    sudo yum install nginx
+  else
+    echo "Unsupported operating system"
+  fi
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  # Install Nginx on macOS using Homebrew
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  brew install nginx
+else
+  echo "Unsupported operating system"
+fi
